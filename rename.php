@@ -38,9 +38,11 @@ $a = array("[ Johann Jungmann ] [ Anna Jungfleisch ]",
 "[ John Howard Krueckeberg ] [ Bonnie Carolyn Pepler ]");
 
 // Break the file name into two parts.
-function get_new_bracketed_name($name)
+function get_new_bracketed_name($match)
 {
-     foreach($matches[1] as $s) {
+    $names = array();
+    
+    foreach ($match as $s) {
       
           $x = trim($s);
       
@@ -54,13 +56,17 @@ function get_new_bracketed_name($name)
                      
              $given_names = implode(' ', $a); 
           
-             $reordered_name = "[ $surname, $given_names ], "; 
+             $reordered_name = "$surname, $given_names"; 
             
           } else {
               
-             $reordered_name ="[ $surname ]";
+             $reordered_name = $surname;
           }
-     }
+          
+          $names[] = '[ ' . $reordered_name . ' ]';
+    }
+     
+    return implode(' ', $names);
 }
  
 $regex = '@\[\s([A-Za-zöäüAÖÄÜß"_ ]+)\]@';
@@ -73,17 +79,19 @@ $dir_only_iter = new \CallbackFilterIterator($dir_iter, function(\SplFileInfo $f
                  return $file_info->isDir();
              });
              
-foreach($dir_only_iter as $dir_name) {
+foreach($dir_only_iter as $file_info) {
 
+   $dir_name = $file_info->getFilename();
+   
    $pos_space = strpos($dir_name, ' ');
 
    $str = substr($dir_name, $pos_space);
 
    $rc = preg_match_all($regex, $str, $matches);
 
-   $new_dir_name = substr($dir_name, 0, $pos_space + 1 ) . $get_new_bracked_names($matches[1]);
+   $new_dir_name = substr($dir_name, 0, $pos_space + 1 ) . get_new_bracketed_name($matches[1]);
 
-   $cmd = "mv $dir_name $new_dir_name";
+   $cmd = "mv '$dir_name' '$new_dir_name'";
 
-   exec($cmd); 
+   echo $cmd . "\n"; 
 }

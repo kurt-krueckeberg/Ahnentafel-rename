@@ -82,7 +82,7 @@ $dir_only_iter = new \CallbackFilterIterator($dir_iter, function(\SplFileInfo $f
 foreach($dir_only_iter as $file_info) {
 
    $dir_name = $file_info->getFilename();
-   
+
    $pos_space = strpos($dir_name, ' ');
 
    $str = substr($dir_name, $pos_space);
@@ -93,5 +93,5 @@ foreach($dir_only_iter as $file_info) {
 
    $cmd = "mv '$dir_name' '$new_dir_name'";
 
-   echo $cmd . "\n"; 
+   exec($cmd);
 }

@@ -65,20 +65,25 @@ function get_new_bracketed_name($name)
  
 $regex = '@\[\s([A-Za-zöäüAÖÄÜß"_ ]+)\]@';
 
-$dir = dir(__FILE);
+$dir = dirname(__FILE__);
 
-// TODO: Take code from php-utils Repository
+$dir_iter = new DirectoryIterator($dir);
+    
+$dir_only_iter = new \CallbackFilterIterator($dir_iter, function(\SplFileInfo $file_info) {
+                 return $file_info->isDir();
+             });
+             
+foreach($dir_only_iter as $dir_name) {
 
-foreach($ifile as $line) {
+   $pos_space = strpos($dir_name, ' ');
 
-   $pos_space = strpos($line, ' ');
-
-   $str = substr($line, $pos_space);
+   $str = substr($dir_name, $pos_space);
 
    $rc = preg_match_all($regex, $str, $matches);
 
-   $new_file_name = substr($line, 0, $pos_space + 1 ) . $get_new_bracked_names($matches[1]);
-    
-}
-    
+   $new_dir_name = substr($dir_name, 0, $pos_space + 1 ) . $get_new_bracked_names($matches[1]);
 
+   $cmd = "mv $dir_name $new_dir_name";
+
+   exec($cmd); 
+}
